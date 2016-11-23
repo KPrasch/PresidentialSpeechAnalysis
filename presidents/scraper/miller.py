@@ -2,51 +2,31 @@ from bs4 import BeautifulSoup
 import requests
 
 
-class MillerScraper:
-    base_url = 'http://millercenter.org/president/'
+class PresidentSpeechLinkScraper:
+    base_url = 'http://millercenter.org/president/speeches'
+    transcript_base = 'http://millercenter.org'
 
     def __init__(self, *args, **kwargs):
-        self.links = self.make_real_links()
-        super(MillerScraper, self).__init__(*args, **kwargs)
+        self.speeches = self.parse()
 
     def __len__(self):
-        return len(self.links)
+        return len(self.speeches.keys())
 
-    def parse_president_speeches(self, president):
-        r = requests.get('{}{}'.format(self.base_url, president))
+    def parse(self):
+        r = requests.get(self.base_url)
         soup = BeautifulSoup(r.text, 'html.parser')
-        speeches_soup = soup.find("div", {"id": "speeches"})
-        return speeches_soup
 
-    @staticmethod
-    def compile_speech_links(speeches_soup):
-        def get_speech_link(l):
-            l = l.a.attrs['href']
-            return l
-        return [get_speech_link(s) for s in speeches_soup.find_all('span')]
+        codex = dict()
+        pres_soup = soup.find_all("a", {"class": "transcript"})
 
-    def scrape_president_speech_links(self, president='washington'):
-        speeches_soup = self.parse_president_speeches(president)
-        links = self.compile_speech_links(speeches_soup)
-        return links
+        for a in pres_soup:
+            url = a['href']
+            last_name = url.split('/')[2]
+            try:
+                codex[last_name].append(self.transcript_base+url)
+            except KeyError:
+                codex[last_name] = [self.transcript_base+url]
 
-    @staticmethod
-    def get_presidents_list():
-        r = requests.get('http://millercenter.org/president')
-        soup = BeautifulSoup(r.text, 'html.parser')
-        speeches_soup = soup.find("div", {"id": "presidents-list"})
-        speeches_soup = speeches_soup.find_all('h2')
-        return [p.text for p in speeches_soup]
+        return codex
 
-    def make_real_links(self):
-        plist = self.get_presidents_list()
-
-        plist[40] = 'George H.W. Bush'  # 'George H.\xa0W. Bush'
-        plist[7] = 'vanburen' # buren > vanburen
-        clean_plist = [fn.split()[-1].strip().lower() for fn in plist]
-
-        result = {pres: [self.base_url+l for l in self.scrape_president_speech_links(president=pres)] \
-                                for pres in clean_plist }
-
-
-        return result
+        
