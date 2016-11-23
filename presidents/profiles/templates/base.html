@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title of the document</title>
+    {% block extra_head %}
+    {% endblock %}
+  </head>
+
+  <body>
+    some things in the body here
+    {% include 'nav.html' %}
+
+    {% block main %}
+        DEFAULT
+    {% endblock %}
+
+  </body>
+
+  {% block footer %}
+  {% endblock %}
+
+</html>
