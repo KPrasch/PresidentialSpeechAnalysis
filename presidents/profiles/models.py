@@ -5,18 +5,21 @@ from django.db import models
 
 class Politician(models.Model):
     first_name = models.CharField(max_length=100)
+    middle_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     birth_date = models.DateTimeField()
     deceased_date = models.DateTimeField(blank=True, null=True)
     years_lived = models.PositiveSmallIntegerField()
+    ari_score = models.PositiveSmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('first_name', 'last_name', 'middle_name')
 
 
 class President(Politician):
     presidecy_number = models.PositiveSmallIntegerField()
     presidency_start_year = models.DateTimeField()
     presidency_end_year = models.DateTimeField()
-    ari_score = models.PositiveSmallIntegerField(blank=True, null=True)
-    # TODO: wordcloud image storage ref?
 
     def __str__(self):
         return self.name
@@ -26,9 +29,9 @@ class Election(models.Model):
     count = models.PositiveSmallIntegerField()
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    candidates = models.ManyToManyField(Politician)
-    president_elect = models.ForeignKey(President)
-    vice_president_elect = models.ForeignKey(Politician, blank=True, null=True)
+    candidates = models.ManyToManyField(Politician, related_name='elections')
+    president_elect = models.OneToOneField(President)
+    vice_president_elect = models.OneToOneField(Politician, blank=True, null=True)
 
 
 class Speech(models.Model):
