@@ -5,14 +5,17 @@ import datetime
 
 class Person(models.Model):
     first_name = models.CharField(max_length=500, blank=True, null=True)
-    middle_name = models.CharFiels(max_length=500, blank=True, null=True)
+    middle_name = models.CharField(max_length=500, blank=True, null=True)
     last_name = models.CharField(max_length=500, blank=True, null=True)
     gender = models.CharField(max_length=500, blank=True, null=True) # Keep as CharField
     birth_location = models.CharField(max_length=1024, blank=True, null=True)
     birth_date = models.DateField(blank=True, null=True)
     deceased_date = models.DateField(blank=True, null=True)
+    death_location = models.CharField(max_length=1024, blank=True, null=True)
+    education = models.CharField(max_length=1024, blank=True, null=True)
     years_lived = models.PositiveSmallIntegerField(blank=True, null=True)
     age = models.PositiveSmallIntegerField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
 
     class Meta:
         """
@@ -46,17 +49,29 @@ class Person(models.Model):
             self.age = delta.days // 365
 
 
+
 class Politician(Person):
     political_party = models.CharField(max_length=100, blank=True, null=True)
 
 
+
 class President(Politician):
+    REASONS = (
+    ('NSR', 'Did Not Seek Re-election'),
+    ('TME', 'Term Ended'),
+    ('LRE', 'Lost'),
+    ('DIO', 'Died in Office'),
+    ('ASN', 'Assasinated'),
+    ('RSG', 'Resigned'),
+    ('IPH', 'Impeached'),
+    )
+    elections_won = models.PositiveSmallIntegerField(default=0)
     presidecy_number = models.PositiveSmallIntegerField()
-    presidency_start_year = models.DateTimeField()
-    presidency_end_year = models.DateTimeField()
+    start_year = models.DateTimeField()
+    end_year = models.DateTimeField()
+    reason_left_office = models.CharField(max_length=3, choices=REASONS)
     ari_score = models.PositiveSmallIntegerField(blank=True, null=True)
-    wordcloud = models.ImageField()
-    # TODO: wordcloud image storage ref?
+    wordcloud = models.ImageField(blank=True, null=True)
 
     def __str__(self):
         return self.name

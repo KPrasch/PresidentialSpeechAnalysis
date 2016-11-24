@@ -18,6 +18,6 @@ from django.contrib import admin
 from profiles.views import home
 
 urlpatterns = [
-    url(r'^home/', home),
+    url(r'^admin/', admin.site.urls),
     url(r'^llama/', home),
 ]
