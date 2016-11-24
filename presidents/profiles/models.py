@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-from scraper.miller import PresidentSpeechLinkScraper as Speech
 from django.db import models
 import datetime
 
@@ -25,7 +24,7 @@ class Politician(models.Model):
             years_lived = delta.days // 365
             return years_lived
         else:
-            delta = date.today() - self.birth_date
+            delta = datetime.datetime.now().day - self.birth_date
             age = delta.days // 365
             return age
     # property() is used to create these attributes only made from methods

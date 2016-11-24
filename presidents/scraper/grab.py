@@ -5,10 +5,14 @@ import requests
 
 
 m = PresidentSpeechLinkScraper()
+def president_name_search(query):
+    pass
+
 
 def get_data():
     for name, links in m.speeches.items():
-        president = President.objects.create(miller_name=name)
+
+        #president = President.objects.create(miller_name=name)
         #president.save()
 
         for speech_link in links:
