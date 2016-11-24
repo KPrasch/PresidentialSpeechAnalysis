@@ -3,15 +3,25 @@ from django.db import models
 import datetime
 
 
-class Politician(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+class Person(models.Model)
+    first_name = models.CharField(max_length=500, blank=True, null=True)
+    middle_name = models.CharFiels(max_length=500, blank=True, null=True)
+    last_name = models.CharField(max_length=500, blank=True, null=True)
+    gender = models.CharField(max_length=500, blank=True, null=True) # Keep as CharField
+    birth_location = models.CharField(max_length=1024, blank=True, null=True)
     birth_date = models.DateField()
     deceased_date = models.DateField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('first_name', 'middle_name', 'last_name')
+
+class Politician(Person):
+
     political_party = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
-        return (self.first_name + ' ' + self.last_name)
+        names = " ".join([self.first_name, self.middle_name, self.last_name])
+        return names
 
     def calc_years_lived_or_age(self):
         '''
@@ -27,6 +37,7 @@ class Politician(models.Model):
             delta = datetime.datetime.now().day - self.birth_date
             age = delta.days // 365
             return age
+
     # property() is used to create these attributes only made from methods
     years_lived = property(calc_years_lived_or_age)
     age = property(calc_years_lived_or_age)
