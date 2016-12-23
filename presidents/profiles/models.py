@@ -7,6 +7,8 @@ class Person(models.Model):
     first_name = models.CharField(max_length=500, blank=True, null=True)
     middle_name = models.CharField(max_length=500, blank=True, null=True)
     last_name = models.CharField(max_length=500, blank=True, null=True)
+    slug = models.SlugField(null=True, blank=True)
+    common_name = models.CharField(max_length=500, blank=True, null=True)
     gender = models.CharField(max_length=500, blank=True, null=True) # Keep as CharField
     birth_location = models.CharField(max_length=1024, blank=True, null=True)
     birth_date = models.DateField(blank=True, null=True)
@@ -28,13 +30,13 @@ class Person(models.Model):
         ordering = ['-birth_date'] # order by reverse birth dates
 
     def save(self, *args, **kwargs):
-        self.calc_years_lived_or_age()
+        #self.calc_years_lived_or_age()
         super(Person, self).save(*args, **kwargs)
 
     def __str__(self):
         names = " ".join([self.first_name, self.middle_name, self.last_name])
         return names
-
+    """
     def calc_years_lived_or_age(self):
         '''
         Calculates and returns either the age or the years lived of the person
@@ -47,15 +49,9 @@ class Person(models.Model):
         else:
             delta = datetime.datetime.now().day - self.birth_date
             self.age = delta.days // 365
+    """
 
-
-
-class Politician(Person):
-    political_party = models.CharField(max_length=100, blank=True, null=True)
-
-
-
-class President(Politician):
+class President(Person):
     REASONS = (
     ('NSR', 'Did Not Seek Re-election'),
     ('TME', 'Term Ended'),
@@ -66,34 +62,23 @@ class President(Politician):
     ('IPH', 'Impeached'),
     )
     elections_won = models.PositiveSmallIntegerField(default=0)
-    presidecy_number = models.PositiveSmallIntegerField()
-    start_year = models.DateTimeField()
-    end_year = models.DateTimeField()
-    reason_left_office = models.CharField(max_length=3, choices=REASONS)
+    presidecy_number = models.PositiveSmallIntegerField(blank=True, null=True)
+    start_year = models.DateTimeField(blank=True, null=True)
+    end_year = models.DateTimeField(blank=True, null=True)
+    reason_left_office = models.CharField(max_length=3, choices=REASONS, default="TME")
     ari_score = models.PositiveSmallIntegerField(blank=True, null=True)
     wordcloud = models.ImageField(blank=True, null=True)
 
     def __str__(self):
-        return self.name
-
-
-class Election(models.Model):
-    count = models.PositiveSmallIntegerField()
-    start_date = models.DateField()
-    end_date = models.DateField()
-    candidates = models.ManyToManyField(Politician)
-    president_elect = models.ForeignKey(President, related_name='election')
-    vice_president_elect = models.ForeignKey(Politician, related_name='election_as_vp', blank=True, null=True)
-
-    def __str__(self):
-        return 'Election #: {}, {}'.format(self.count, self.start_date)
+        return self.common_name
 
 
 class Speech(models.Model):
     speaker = models.ForeignKey(President, related_name='speeches')
     title = models.CharField(max_length=1024, blank=True, null=True)
     body = models.TextField()
-    delivery_date = models.DateTimeField(blank=True, null=True)
+    url = models.URLField(blank=True, null=True)
+    date = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return '{} by {}'.format(self.title, self.speaker.name)
+        return '{} by {}'.format(self.title, self.speaker.common_name)

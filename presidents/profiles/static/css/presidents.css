@@ -1,0 +1,16 @@
+.navbar-fixed-top {
+  top: 0px; /* Fixes Conted below navbar */
+}
+
+.navbar-fixed-top, .navbar-fixed-bottom {
+  position: relative;
+}
+
+.footer {
+  background-color: grey;
+  height: 10%;
+  width: 100%
+  position: absolute;
+  bottom: 0px;
+  text-align: center;
+}

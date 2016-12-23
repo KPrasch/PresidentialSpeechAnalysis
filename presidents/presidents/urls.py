@@ -15,9 +15,14 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from profiles.views import home
+from profiles.views import (HomeView, PresidentListView,
+                            PresidentDetailView, SpeechDetailView, SpeechListView)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^llama/', home),
+    url(r'^$', HomeView.as_view()),
+    url(r'^presidents/(?P<slug>\w+)/$', PresidentDetailView.as_view()),
+    url(r'^presidents/$', PresidentListView.as_view()),
+    url(r'^speeches/$', SpeechListView.as_view()),
+    url(r'^speeches/(?P<pk>\d+)/$', SpeechDetailView.as_view()),
 ]

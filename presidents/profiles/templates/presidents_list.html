@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+<section class='container'>
+
+
+
+  <table class="table">
+      <h1>Presidents of the United States of America</h1>
+      <thead>
+          <tr>
+            
+              <td> Common Name </td>
+              <td> Speeches Availible </td>
+              <td> Reson for leaving Office </td>
+
+          </tr>
+      </thead>
+
+      {% for president in presidents %}
+        <tr>
+          <td> <a href="/presidents/{{president.slug}}">{{ president.common_name }}<a> </td>
+          <td> {{ president.speeches.all|length }} </td>
+          <td> {{ president.get_reason_left_office_display }} </td>
+        </tr>
+      {% endfor %}
+
+    </table>
+
+</section>
+
+{% endblock %}
