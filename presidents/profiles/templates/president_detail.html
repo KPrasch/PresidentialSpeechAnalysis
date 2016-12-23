@@ -10,7 +10,7 @@
 
       <table class='table table-striped'>
           {% for speech in speeches %}
-              <tr><td>{{ speech }}</td></tr>
+              <tr><td><a href="/speeches/{{ speech.id }}">{{ speech }}</a></td></tr>
           {% endfor %}
       </table>
     </div>

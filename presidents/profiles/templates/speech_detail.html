@@ -6,6 +6,11 @@
 
     <div class="well">
       <h1>{{ object }}</h1>
+      {{ object.date|date:"M d, Y" }}
+      <article class="text-left">
+        {{ object.body }}
+      </article>
+
     <div>
 
 </section>

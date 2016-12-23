@@ -5,18 +5,52 @@
 <section class="container">
 
 
-    <div class="well">
-      <h1>{{ object }}</h1>
+    <div>
 
-      <table class='table table-striped'>
-          {% for speech in speeches %}
-              <tr>
-                <td><a href="/speeches/{{ speech.id }}/">{{ speech }}</td>
-                </tr>
-          {% endfor %}
-      </table>
+       <div class="panel panel-default">
+         <div class="panel-heading">
+            <h1><span id="speech-count">{{ speeches|length }} Total</span> Speeches</h1>
+            <div class="input-group">
+              <span class="input-group-addon" id="basic-addon1t"></span>
+              <input type="text" data-toggle="popover" title="Transcript Search"
+                     data-content="Searches against transcript keywords and meta data."
+                     data-placement="bottom" id="search"
+                     class="form-control" placeholder="keywords"
+                     aria-describedby="basic-addon1">
+            </div>
+
+           </div>
+         <div class="panel-body">
+            <table class='table table-striped'>
+                {% for speech in speeches %}
+                    <tr data-id="{{ speech.id }}">
+                      <td>{{ speech.date|date:"M d, Y" }}</td>
+                      <td><a href="/speeches/{{ speech.id }}/">{{ speech }}</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+          </div>
+    </div>
     </div>
 
+    {# .... **Now the pagination section** .... #}
+    {% if is_paginated %}
+        <nav class="pagination">
+            <ul class="pagination">
+              <li>
+                {% if page_obj.has_previous %}
+                    <a href="/speeches?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+                <span class="page-current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+                {% if page_obj.has_next %}
+                    <a href="/speeches?page={{ page_obj.next_page_number }}">next</a>
+                {% endif %}
+              </li>
+            </ul>
+        </nav>
+    {% endif %}
 
 </section>
 

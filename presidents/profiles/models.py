@@ -63,6 +63,7 @@ class President(Person):
     )
     elections_won = models.PositiveSmallIntegerField(default=0)
     presidecy_number = models.PositiveSmallIntegerField(blank=True, null=True)
+    party = models.CharField(max_length=200, blank=True, null=True)
     start_year = models.DateTimeField(blank=True, null=True)
     end_year = models.DateTimeField(blank=True, null=True)
     reason_left_office = models.CharField(max_length=3, choices=REASONS, default="TME")

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import JsonResponse
 from django.views.generic import ListView, TemplateView, DetailView
 from .models import Person, President, Speech
 
@@ -49,5 +50,16 @@ class SpeechListView(ListView):
     Returns All Speeches.
     """
     model = Speech
+    paginate_by = 50  #and that's it !!
     template_name = 'speech_list.html'
     context_object_name = 'speeches'
+
+
+def search_transcripts(request):
+    """
+    Endpoint returning JSON of speech ids containing the query string.
+    """
+    if request.method == "GET":
+        query = request.GET.get('query', '')
+        ids = [s.id for s in Speech.objects.filter(body__icontains=query)]
+        return JsonResponse(ids, safe=False)

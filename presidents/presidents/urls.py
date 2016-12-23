@@ -16,7 +16,8 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from profiles.views import (HomeView, PresidentListView,
-                            PresidentDetailView, SpeechDetailView, SpeechListView)
+                            PresidentDetailView, SpeechDetailView, SpeechListView,
+                            search_transcripts)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -25,4 +26,5 @@ urlpatterns = [
     url(r'^presidents/$', PresidentListView.as_view()),
     url(r'^speeches/$', SpeechListView.as_view()),
     url(r'^speeches/(?P<pk>\d+)/$', SpeechDetailView.as_view()),
+    url(r'^speeches/search/$', search_transcripts),
 ]
