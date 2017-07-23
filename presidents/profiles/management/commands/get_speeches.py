@@ -31,21 +31,24 @@ class Command(BaseCommand):
         if options['seed']:
             self.stdout.write(self.style.SUCCESS('Starting scraper - Load local file'))
         elif options['update']:
-            self.stdout.write(self.style.SUCCESS('Starting scraper - Update live speeches'))
+            self.stdout.write(self.style.SUCCESS('Starting scraper - Update speeches'))
 
         start_time = datetime.now()  # Time this operation for reporting
         scraped_corpus_data = miller_scraper.scrape(seed=options['seed'])
 
         if options['update']:
-            existing_corpus_urls = Speech.objects.values_list('url', flat=True)
+            existing = set(Speech.objects.values_list('url', flat=True))
+            scraped = scraped_corpus_data
 
-            def filter_incoming_speeches(scraped, existing: list):
-                difference = ((speech, s) for speech, s in scraped if speech['url'] not in existing)
-                yield from difference
+            difference = ((speechdata, skipped) for speechdata, skipped in scraped
+                          if speechdata['url'] not in existing)
 
-            incoming_corpus_data = filter_incoming_speeches(scraped_corpus_data, existing_corpus_urls)
+            incoming_corpus_data = difference
+
         else:
             incoming_corpus_data = scraped_corpus_data
+
+
 
         duplicates = 0
         for speechdata, skipped in incoming_corpus_data:

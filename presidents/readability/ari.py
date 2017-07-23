@@ -55,12 +55,16 @@ def calculate(characters: int, words: int, sentences: int) -> int:
     https://en.wikipedia.org/wiki/Automated_readability_index
     
     """
-    step_one = 4.71 * (characters/words)
-    step_two = 0.5 * (words/sentences)
-    step_three =  (step_one+step_two) - 21.43
-    result = math.ceil(step_three)
-
-    return result
+    try:
+        step_one = 4.71 * (characters/words)
+        step_two = 0.5 * (words/sentences)
+    except ZeroDivisionError:
+        result = 0     # TODO
+    else:
+        step_three = (step_one+step_two) - 21.43
+        result = math.ceil(step_three)
+    finally:
+        return result
 
 
 def ari_score(text):

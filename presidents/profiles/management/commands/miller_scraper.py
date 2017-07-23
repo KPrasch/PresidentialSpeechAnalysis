@@ -16,7 +16,7 @@ SEED_DATA = os.path.join(BASE_DIR, 'links.html')
 
 
 def get_speech_links(seed=False):
-    """Scrapes a list of links to speeches"""
+    """Scrapes a list of links to speechesmakemigrations """
     if seed:
         with open(SEED_DATA, 'r') as f:
             text = f.read()
@@ -26,19 +26,22 @@ def get_speech_links(seed=False):
 
     soup = BeautifulSoup(text, 'html.parser')
     little_soup = soup.find_all("a", {"href": re.compile("speeches")})
-    for a in little_soup:
-        yield a['href']
+    broth = (a['href'] for a in little_soup if len(a['href']) > 70)     # Removes Noisy Links
+    yield from broth
 
 
 def scrape(seed=False):
     """
 
-    :param links:
-    :return:
     """
     counter, skipped = 0, 0
     for slink in get_speech_links(seed=seed):  # TODO
-        url = slink
+
+        if 'https://' in slink:
+            url = slink
+        else:
+            url = os.path.join(SPEECH_BASE_URL, slink)
+
         try:
             resp = requests.get(url)
         except (SSLError, RequestsSSLError):

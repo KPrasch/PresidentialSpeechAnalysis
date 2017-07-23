@@ -3,6 +3,7 @@ from django.db import models
 import datetime
 from django.utils.text import slugify
 from readability.ari import ari_score
+from tf_idf.main import score_corpus
 
 
 class Person(models.Model):
@@ -95,21 +96,32 @@ class Speech(models.Model):
         unique_together = ['speaker', 'title', 'date']
         ordering = ['-date', 'speaker']
 
-    def save(self, *args, **kwargs):
+    def save(self, refresh=True, *args, **kwargs):
 
         self.slug = slugify(self.title)
 
-        # if not self.ARI_score:         # TODO
-        score, scoredata = ari_score(self.body)
-        self.ARI_score = score
-        self.ARI_display = scoredata['grade_level']
+        if refresh:
+            score, scoredata = ari_score(self.body)
+            self.ARI_score = score
+            self.ARI_display = scoredata['grade_level']
 
         super().save(*args, **kwargs)
 
+    def presidential_tfidf(self):
+        presidential_corpus = self.speaker.speeches.all().values_list('body', flat=True)
+        speech = self.body
+        word_scores = score_corpus(speech, presidential_corpus)
+        import pdb; pdb.set_trace()
+        return word_scores
+
+    def global_tfidf(self):
+        all_speeches_corpus = Speech.objects.all().values_list('body', flat=True)
+        speech = self.body
+        word_scores = score_corpus(speech, all_speeches_corpus)
+        return word_scores
 
     def __str__(self):
         return '{} by {}'.format(self.title, self.speaker.common_name)
-
 
     def __len__(self):
         return len(self.body)
