@@ -4,6 +4,7 @@ import datetime
 from django.utils.text import slugify
 from readability.ari import ari_score
 from tf_idf.main import score_corpus
+from language.models import WordTag
 
 
 class Person(models.Model):
@@ -33,7 +34,6 @@ class Person(models.Model):
         ordering = ['-birth_date']  # order by reverse birth dates
 
     def save(self, *args, **kwargs):
-        # self.calc_years_lived_or_age()
         self.slug = slugify(self.common_name)
         self.set_age()
         super().save(*args, **kwargs)
@@ -42,11 +42,10 @@ class Person(models.Model):
         names = " ".join([self.first_name, self.middle_name, self.last_name])
         return names
 
-
     def set_age(self):
-        '''
+        """
         Calculates and returns either the age or the years lived of the person
-        '''
+        """
         if self.birth_date and self.deceased_date:
             # gets the difference as a timedelta objects
             delta = self.deceased_date - self.birth_date
@@ -56,7 +55,6 @@ class Person(models.Model):
         if self.birth_date:
             delta = datetime.datetime.now().date() - self.birth_date
             self.age = delta.days // 365
-
 
 
 class President(Person):
@@ -88,9 +86,8 @@ class Speech(models.Model):
     body = models.TextField()
     url = models.URLField(blank=True, null=True)
     date = models.DateField(blank=True, null=True)
-    ARI_score = models.PositiveSmallIntegerField(default=0)
-    ARI_display = models.CharField(max_length=100, default="Not Scored Yet.")
-
+    ARI_score = models.PositiveSmallIntegerField(default=0, editable=False)
+    ARI_display = models.CharField(max_length=100, default="Not Scored Yet.", editable=False)
 
     class Meta:
         unique_together = ['speaker', 'title', 'date']
@@ -107,17 +104,20 @@ class Speech(models.Model):
 
         super().save(*args, **kwargs)
 
-    def presidential_tfidf(self):
-        presidential_corpus = self.speaker.speeches.all().values_list('body', flat=True)
-        speech = self.body
-        word_scores = score_corpus(speech, presidential_corpus)
-        import pdb; pdb.set_trace()
-        return word_scores
+    def tfidf(self, everybody=False):
+        if everybody:
+            all_speeches_corpus = Speech.objects.all().values_list('body', flat=True)
+            corpus = all_speeches_corpus
+        else:
+            presidential_corpus = self.speaker.speeches.all().values_list('body', flat=True)
+            corpus = presidential_corpus
 
-    def global_tfidf(self):
-        all_speeches_corpus = Speech.objects.all().values_list('body', flat=True)
         speech = self.body
-        word_scores = score_corpus(speech, all_speeches_corpus)
+        word_scores = score_corpus(speech, corpus)
+
+        for word, score in word_scores:
+            tag, created = WordTag.objects.get_or_update(speech=self, word=word, score=score)
+            tag.save()
         return word_scores
 
     def __str__(self):

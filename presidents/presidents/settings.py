@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'profiles.apps.ProfilesConfig',
     'pages.apps.PagesConfig',
+    'language.apps.LanguageConfig',
+    'tf_idf',
+    'readability',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +59,8 @@ ROOT_URLCONF = 'presidents.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join('templates'),
+                 os.path.join('pages', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
