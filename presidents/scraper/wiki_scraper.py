@@ -4,7 +4,6 @@ import pandas as pd
 import re
 
 
-
 def parse_president_wiki():
     """
     BS4 Scraper for the presidential wiki table here:
@@ -20,13 +19,12 @@ def parse_president_wiki():
     return df
 
 
-
 def extract_party(party):
     """Helper for cleaning party data"""
     pattern = re.compile(r"""
-                ([a-zA-Z]+[\-\s]?[a-zA-Z]+){1,2}
-                (.*)
-                """, re.VERBOSE)
+                            ([a-zA-Z]+[\-\s]?[a-zA-Z]+){1,2}
+                            (.*)
+                         """, re.VERBOSE)
     match = pattern.search(party)
     result = match.group(0).replace("- ", "-").strip()
     return result
@@ -42,7 +40,6 @@ def parse():
     df = df.dropna().reset_index().drop(44)['Party[c]'].reset_index()
     df.columns = ['index', 'president']  # renames columns
 
-
     # Pattern for extracting presidential lifespan datafrom the name cell
     pattern = re.compile(r"""
                 ((?:\w+\.?\s)+)               # name
@@ -51,7 +48,6 @@ def parse():
                 .*$                           # garbage
                 """, re.X)
 
-
     # Shapes the data into reliable tuples
     presidents = list()
     for ps in df.itertuples():
@@ -59,15 +55,10 @@ def parse():
         match = pattern.search(q)
         presidents.append(match.groups())
 
-
     # Cleans out some noise in the name cell
     presidents = [(n.replace("Born", "").strip(), *ps) for n, *ps in presidents]
 
-
-
-
-    presidents = [[i+1, *ps, extract_party(str(sub_df.iloc[i]))] for i, ps in enumerate(presidents)]
-
+    presidents = [[i + 1, *ps, extract_party(str(sub_df.iloc[i]))] for i, ps in enumerate(presidents)]
 
     # Some finishing touches
     presidents[0][-1] = None

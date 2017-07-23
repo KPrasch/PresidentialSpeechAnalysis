@@ -9,7 +9,7 @@ class Person(models.Model):
     last_name = models.CharField(max_length=500, blank=True, null=True)
     slug = models.SlugField(null=True, blank=True)
     common_name = models.CharField(max_length=500, blank=True, null=True)
-    gender = models.CharField(max_length=500, blank=True, null=True) # Keep as CharField
+    gender = models.CharField(max_length=500, blank=True, null=True)  # Keep as CharField
     birth_location = models.CharField(max_length=1024, blank=True, null=True)
     birth_date = models.DateField(blank=True, null=True)
     deceased_date = models.DateField(blank=True, null=True)
@@ -27,15 +27,16 @@ class Person(models.Model):
         # sets the plural of person to people
         verbose_name_plural = 'people'
         # describe how you want this to be ordered in the database
-        ordering = ['-birth_date'] # order by reverse birth dates
+        ordering = ['-birth_date']  # order by reverse birth dates
 
     def save(self, *args, **kwargs):
-        #self.calc_years_lived_or_age()
+        # self.calc_years_lived_or_age()
         super(Person, self).save(*args, **kwargs)
 
     def __str__(self):
         names = " ".join([self.first_name, self.middle_name, self.last_name])
         return names
+
     """
     def calc_years_lived_or_age(self):
         '''
@@ -51,15 +52,16 @@ class Person(models.Model):
             self.age = delta.days // 365
     """
 
+
 class President(Person):
     REASONS = (
-    ('NSR', 'Did Not Seek Re-election'),
-    ('TME', 'Term Ended'),
-    ('LRE', 'Lost'),
-    ('DIO', 'Died in Office'),
-    ('ASN', 'Assasinated'),
-    ('RSG', 'Resigned'),
-    ('IPH', 'Impeached'),
+        ('NSR', 'Did Not Seek Re-election'),
+        ('TME', 'Term Ended'),
+        ('LRE', 'Lost'),
+        ('DIO', 'Died in Office'),
+        ('ASN', 'Assasinated'),
+        ('RSG', 'Resigned'),
+        ('IPH', 'Impeached'),
     )
     elections_won = models.PositiveSmallIntegerField(default=0)
     presidecy_number = models.PositiveSmallIntegerField(blank=True, null=True)

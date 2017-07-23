@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 from datetime import datetime
 import re
-from profiles.models import President, Speech
+from presidents.profiles.models import President, Speech
 
 
 class PresidentSpeechLinkScraper:
@@ -17,21 +17,22 @@ class PresidentSpeechLinkScraper:
         self.created = datetime.now()
 
     def __str__(self):
-        return "Scraper instance {0.created}".format(self)
+        return f"Scraper instance {self.created}"
 
     def __repr__(self):
-        return "Scraper instance {0.created}".format(self)
+        return f"Scraper instance {self.created}"
 
     def __len__(self):
         """Returns number of scraped speech links"""
         return len(self.speech_links)
-
-    def get_speech_links(self):
+    
+    @staticmethod
+    def get_speech_links():
         """Scrapes a list of links to speeches"""
         base_url = 'http://millercenter.org/president/speeches/'
         r = requests.get(base_url)
         soup = BeautifulSoup(r.text, 'html.parser')
-        little_soup = soup.find_all("a", {"href": re.compile("speeches")})
+        little_soup = soup.find_all("a", {"href": re.compile(r'speeches')})
         links = {a['href'] for a in little_soup}
         return links
 
@@ -46,7 +47,7 @@ class PresidentSpeechLinkScraper:
                 president = soup.article.h2.text
                 little_soup = soup.find('div', {"id": "transcript"})
                 speech = little_soup.text
-                # import pdb; pdb.set_trace()
+
                 title = soup.article.h1.text
                 date = title.split('(')[-1].replace(')', '')
                 date = datetime.strptime(date, "%B %d, %Y")
