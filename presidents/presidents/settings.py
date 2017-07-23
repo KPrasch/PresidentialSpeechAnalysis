@@ -25,7 +25,7 @@ SECRET_KEY = 'f#45g(go!q#dace8^-xh$#x1-*_+!$ys^)pjse)9_mlnbn*tu('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'profiles.apps.ProfilesConfig',
-    'scraper',
 ]
 
 MIDDLEWARE = [

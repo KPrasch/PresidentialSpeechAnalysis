@@ -1,13 +1,14 @@
 from __future__ import unicode_literals
 from django.db import models
 import datetime
+from django.utils.text import slugify
 
 
 class Person(models.Model):
     first_name = models.CharField(max_length=500, blank=True, null=True)
     middle_name = models.CharField(max_length=500, blank=True, null=True)
     last_name = models.CharField(max_length=500, blank=True, null=True)
-    slug = models.SlugField(null=True, blank=True)
+    slug = models.SlugField(null=True, blank=True, editable=False)
     common_name = models.CharField(max_length=500, blank=True, null=True)
     gender = models.CharField(max_length=500, blank=True, null=True)  # Keep as CharField
     birth_location = models.CharField(max_length=1024, blank=True, null=True)
@@ -15,8 +16,8 @@ class Person(models.Model):
     deceased_date = models.DateField(blank=True, null=True)
     death_location = models.CharField(max_length=1024, blank=True, null=True)
     education = models.CharField(max_length=1024, blank=True, null=True)
-    years_lived = models.PositiveSmallIntegerField(blank=True, null=True)
-    age = models.PositiveSmallIntegerField(blank=True, null=True)
+    lifespan = models.PositiveSmallIntegerField(blank=True, null=True)
+    age = models.PositiveSmallIntegerField(blank=True, null=True, editable=False)
     notes = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -31,26 +32,29 @@ class Person(models.Model):
 
     def save(self, *args, **kwargs):
         # self.calc_years_lived_or_age()
-        super(Person, self).save(*args, **kwargs)
+        self.slug = slugify(self.common_name)
+        self.set_age()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         names = " ".join([self.first_name, self.middle_name, self.last_name])
         return names
 
-    """
-    def calc_years_lived_or_age(self):
+
+    def set_age(self):
         '''
         Calculates and returns either the age or the years lived of the person
         '''
-        if self.deceased_date != None:
+        if self.birth_date and self.deceased_date:
             # gets the difference as a timedelta objects
             delta = self.deceased_date - self.birth_date
             # gets the days of the timedelta and converts to years
-            self.years_lived = delta.days // 365
-        else:
-            delta = datetime.datetime.now().day - self.birth_date
+            self.lifespan = delta.days // 365
+
+        if self.birth_date:
+            delta = datetime.datetime.now().date() - self.birth_date
             self.age = delta.days // 365
-    """
+
 
 
 class President(Person):
@@ -64,13 +68,12 @@ class President(Person):
         ('IPH', 'Impeached'),
     )
     elections_won = models.PositiveSmallIntegerField(default=0)
-    presidecy_number = models.PositiveSmallIntegerField(blank=True, null=True)
+    presidency_number = models.PositiveSmallIntegerField(blank=True, null=True)
     party = models.CharField(max_length=200, blank=True, null=True)
     start_year = models.DateTimeField(blank=True, null=True)
     end_year = models.DateTimeField(blank=True, null=True)
-    reason_left_office = models.CharField(max_length=3, choices=REASONS, default="TME")
-    ari_score = models.PositiveSmallIntegerField(blank=True, null=True)
-    wordcloud = models.ImageField(blank=True, null=True)
+    reason_left_office = models.CharField(max_length=3, choices=REASONS, blank=True, null=True)
+    # wordcloud = models.ImageField(blank=True, null=True)
 
     def __str__(self):
         return self.common_name
@@ -78,10 +81,27 @@ class President(Person):
 
 class Speech(models.Model):
     speaker = models.ForeignKey(President, related_name='speeches')
-    title = models.CharField(max_length=1024, blank=True, null=True)
+    title = models.CharField(max_length=1024, blank=True, null=True, unique=True)
+    slug = models.SlugField(max_length=1024, blank=True, null=True, editable=False)
     body = models.TextField()
     url = models.URLField(blank=True, null=True)
-    date = models.DateTimeField(blank=True, null=True)
+    date = models.DateField(blank=True, null=True)
+    ARI_score = models.PositiveSmallIntegerField(blank=True, null=True)
+
+
+    class Meta:
+        unique_together = ['speaker', 'title', 'date']
+        ordering = ['-date', 'speaker']
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return '{} by {}'.format(self.title, self.speaker.common_name)
+
+
+    def __len__(self):
+        return len(self.body)
+

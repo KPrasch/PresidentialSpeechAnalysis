@@ -1,10 +1,11 @@
+import os
 import re
 from datetime import datetime
+from ssl import SSLError
 
 import requests
 from bs4 import BeautifulSoup
-import os
-
+from requests.exceptions import SSLError as RequestsSSLError
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.join(BASE_DIR, 'commands')
@@ -25,42 +26,60 @@ def get_speech_links(seed=False):
 
     soup = BeautifulSoup(text, 'html.parser')
     little_soup = soup.find_all("a", {"href": re.compile("speeches")})
-    links = sorted({a['href'] for a in little_soup})
-    return links
+    for a in little_soup:
+        yield a['href']
 
 
-def scrape(links: list):
+def scrape(seed=False):
     """
 
     :param links:
     :return:
     """
-    speeches = dict()
-    for slink in links:
-        url = BASE_URL + slink
-        resp = requests.get(url)
+    counter, skipped = 0, 0
+    for slink in get_speech_links(seed=seed):  # TODO
+        url = slink
+        try:
+            resp = requests.get(url)
+        except (SSLError, RequestsSSLError):
+            skipped += 1
+            print(f'Skip: SSL Problem')
+            print(f'{url}')
+            continue
+
         soup = BeautifulSoup(resp.text, 'html.parser')
+        try:
+            president = soup.find('p', {'class': 'president-name'}).text.replace('\'', '')
+        except AttributeError:
+            print('Skip: Cannot find president name.')
+            print(f'{url}')
+            skipped += 1
+            continue
+
+        little_soup = soup.find('div', {"class": re.compile(r'transcript', re.I)})
+        if little_soup:
+            transcript = '\n'.join(p.text for p in little_soup.find_all('p') if len(p.text) >= 1)
+        else:
+            print(f'Skip: No transcript found.')
+            print(f'{url}')
+            skipped += 1
+            continue
 
         try:
-            president = soup.article.h2.text
-            little_soup = soup.find('div', {"id": "transcript"})
-            transcript = little_soup.text
-
-            title = soup.article.h1.text
-            date_string = title.split('(')[-1].replace(')', '')
-            date = datetime.strptime(date_string, "%B %d, %Y")
-
+            title = soup.find('div', {'class': re.compile(r'field-title')}).a.text
         except AttributeError:
-            print("Skipping {url}".format(url=url))
+            skipped += 1
+            print(f'Skip: Cannot find title.')
+            print(f'{url}')
 
-        else:
-            speechdata = {'name': president,
-                          'title': title,
-                          'date': date,
-                          'transcript': transcript}
-            try:
-                speeches[president].append(speechdata)
-            except KeyError:
-                speeches[president] = [speechdata]
+        date_string = title.split(':')[0]
+        date = datetime.strptime(date_string, "%B %d, %Y").date()
 
-    return speeches
+        speechdata = {'speaker': president,
+                      'title': title,
+                      'url': url,
+                      'date': date,
+                      'transcript': transcript}
+
+        yield speechdata, skipped
+
