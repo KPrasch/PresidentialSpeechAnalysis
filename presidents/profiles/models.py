@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from django.db import models
 import datetime
 from django.utils.text import slugify
+from readability.ari import ari_score
 
 
 class Person(models.Model):
@@ -86,7 +87,8 @@ class Speech(models.Model):
     body = models.TextField()
     url = models.URLField(blank=True, null=True)
     date = models.DateField(blank=True, null=True)
-    ARI_score = models.PositiveSmallIntegerField(blank=True, null=True)
+    ARI_score = models.PositiveSmallIntegerField(default=0)
+    ARI_display = models.CharField(max_length=100, default="Not Scored Yet.")
 
 
     class Meta:
@@ -94,7 +96,14 @@ class Speech(models.Model):
         ordering = ['-date', 'speaker']
 
     def save(self, *args, **kwargs):
+
         self.slug = slugify(self.title)
+
+        # if not self.ARI_score:         # TODO
+        score, scoredata = ari_score(self.body)
+        self.ARI_score = score
+        self.ARI_display = scoredata['grade_level']
+
         super().save(*args, **kwargs)
 
 

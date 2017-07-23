@@ -4,6 +4,7 @@ from .models import President, Speech, Person
 
 class SpeechInline(admin.TabularInline):
     model = Speech
+    extra = 0
 
 
 class PresidentAdmin(admin.ModelAdmin):
