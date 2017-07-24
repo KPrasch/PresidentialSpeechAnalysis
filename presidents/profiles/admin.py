@@ -10,6 +10,7 @@ class SpeechInline(admin.TabularInline):
 
 class SpeechAdmin(admin.ModelAdmin):
     inlines = [TFIDFInline, ]
+    readonly_fields = ['ARI_score', 'ARI_display']
 
 
 class PresidentAdmin(admin.ModelAdmin):
