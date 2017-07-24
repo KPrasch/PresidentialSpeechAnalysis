@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import President, Speech, Person
+from .models import President, Speech, SpeechSimilarity
 from language.admin import TFIDFInline
+
 
 
 class SpeechInline(admin.TabularInline):
@@ -10,7 +11,7 @@ class SpeechInline(admin.TabularInline):
 
 class SpeechAdmin(admin.ModelAdmin):
     inlines = [TFIDFInline, ]
-    readonly_fields = ['ARI_score', 'ARI_display']
+    readonly_fields = ['ARI_score', 'ARI_display', 'body', 'summary']
 
 
 class PresidentAdmin(admin.ModelAdmin):
@@ -21,7 +22,10 @@ class PresidentAdmin(admin.ModelAdmin):
                     'first_name', 'middle_name', 'last_name',
                     )
 
+class SpeechSimilarityAdmin(admin.ModelAdmin):
+    readonly_fields = ['score', 'target', 'source']
+
 
 admin.site.register(President, PresidentAdmin)
 admin.site.register(Speech, SpeechAdmin)
-# admin.site.register(Person)
+admin.site.register(SpeechSimilarity, SpeechSimilarityAdmin)

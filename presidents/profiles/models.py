@@ -7,6 +7,7 @@ from tf_idf.importance import score_corpus
 from language.models import WordTag
 
 from tf_idf.similarity import similarity_vectorizer
+from gensim.summarization import summarize as gsummarize
 
 
 
@@ -76,7 +77,7 @@ class President(Person):
     start_year = models.DateTimeField(blank=True, null=True)
     end_year = models.DateTimeField(blank=True, null=True)
     reason_left_office = models.CharField(max_length=3, choices=REASONS, blank=True, null=True)
-    # wordcloud = models.ImageField(blank=True, null=True)
+    wordcloud = models.ImageField(blank=True, null=True)
 
     def __str__(self):
         return self.common_name
@@ -99,9 +100,10 @@ class Speech(models.Model):
     speaker = models.ForeignKey(President, related_name='speeches')
     title = models.CharField(max_length=1024, blank=True, null=True, unique=True)
     slug = models.SlugField(max_length=1024, blank=True, null=True, editable=False)
-    body = models.TextField()
     url = models.URLField(blank=True, null=True)
     date = models.DateField(blank=True, null=True)
+    body = models.TextField()
+    summary = models.TextField(blank=True, null=True)
     ARI_score = models.PositiveSmallIntegerField(default=0)
     ARI_display = models.CharField(max_length=100, default="Not Scored Yet.")
     similar_speeches = models.ManyToManyField('self', through='SpeechSimilarity', symmetrical=False)
@@ -157,6 +159,15 @@ class Speech(models.Model):
                 similarity.save()
         else:
             return result
+
+    def summarize(self, set=False):
+        summary = gsummarize(self.body, word_count=100)
+        if set:
+            self.summary = summary
+            self.save(refresh=False)
+            return
+
+        return summary
 
 
     def __str__(self):
