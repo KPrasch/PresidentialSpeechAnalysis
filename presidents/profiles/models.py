@@ -5,6 +5,8 @@ from django.utils.text import slugify
 from readability.ari import ari_score
 from tf_idf.main import score_corpus
 from language.models import WordTag
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 
 class Person(models.Model):
@@ -86,8 +88,8 @@ class Speech(models.Model):
     body = models.TextField()
     url = models.URLField(blank=True, null=True)
     date = models.DateField(blank=True, null=True)
-    ARI_score = models.PositiveSmallIntegerField(default=0, editable=False)
-    ARI_display = models.CharField(max_length=100, default="Not Scored Yet.", editable=False)
+    ARI_score = models.PositiveSmallIntegerField(default=0)
+    ARI_display = models.CharField(max_length=100, default="Not Scored Yet.")
 
     class Meta:
         unique_together = ['speaker', 'title', 'date']
@@ -121,6 +123,39 @@ class Speech(models.Model):
             if created:
                 tag.save()
         return word_scores
+
+
+    def similar_speeches(self):
+        """
+        tfidf = vect.fit_transform(["I'd like an apple",
+                                    "An apple a day keeps the doctor away",
+                                    "Never compare an apple to an orange",
+                                    "I prefer scikit-learn to Orange"])
+                                    
+        (tfidf * tfidf.T).A
+        
+        array([[ 1.        ,  0.25082859,  0.39482963,  0.        ],
+               [ 0.25082859,  1.        ,  0.22057609,  0.        ],
+               [ 0.39482963,  0.22057609,  1.        ,  0.26264139],
+               [ 0.        ,  0.        ,  0.26264139,  1.        ]])
+        
+        
+        """
+        vectorizer = TfidfVectorizer(min_df=1, stop_words='english')
+
+        all_speeches = Speech.objects.all()
+        this_speech = self.body
+
+        similar = list()
+        for other_speech in all_speeches:
+            tfidf = vectorizer.fit_transform([this_speech, other_speech.body])
+            pairwise_similarity = (tfidf * tfidf.T).A[1,0]
+            if pairwise_similarity > 0.20:
+                similar.append((pairwise_similarity, other_speech))
+
+        result = sorted(similar, key=lambda t: t[0], reverse=True)[:10]
+        return result
+
 
     def __str__(self):
         return '{} by {}'.format(self.title, self.speaker.common_name)

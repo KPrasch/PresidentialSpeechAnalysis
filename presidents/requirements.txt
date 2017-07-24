@@ -4,3 +4,7 @@ pandas
 pillow
 requests
 bs4
+numpy
+scipy
+scikit-learn
+

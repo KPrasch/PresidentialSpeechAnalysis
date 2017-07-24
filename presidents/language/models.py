@@ -1,9 +1,9 @@
 from django.db import models
 
+from django.utils import timezone
 
-# Create your models here.
+
 class WordTag(models.Model):
-
     SCORE_METHODS = (('TFIDF', 'Term Frequency/Inverse Document Frequency'),
                      )
 
@@ -13,5 +13,14 @@ class WordTag(models.Model):
     score = models.FloatField()
     created = models.DateTimeField(auto_created=True)
 
+    def __str__(self):
+        return self.word
+
     def __len__(self):
         return len(self.word)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.created = timezone.now()
+
+        super().save(*args, **kwargs)
