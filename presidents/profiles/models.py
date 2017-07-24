@@ -63,7 +63,7 @@ class President(Person):
         ('TME', 'Term Ended'),
         ('LRE', 'Lost'),
         ('DIO', 'Died in Office'),
-        ('ASN', 'Assasinated'),
+        ('ASN', 'Assassinated'),
         ('RSG', 'Resigned'),
         ('IPH', 'Impeached'),
     )
@@ -125,4 +125,3 @@ class Speech(models.Model):
 
     def __len__(self):
         return len(self.body)
-
