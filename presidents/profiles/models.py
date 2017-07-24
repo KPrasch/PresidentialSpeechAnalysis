@@ -3,9 +3,10 @@ from django.db import models
 import datetime
 from django.utils.text import slugify
 from readability.ari import ari_score
-from tf_idf.main import score_corpus
+from tf_idf.importance import score_corpus
 from language.models import WordTag
-from sklearn.feature_extraction.text import TfidfVectorizer
+
+from tf_idf.similarity import similarity_vectorizer
 
 
 
@@ -81,6 +82,19 @@ class President(Person):
         return self.common_name
 
 
+class SpeechSimilarity(models.Model):
+    source = models.ForeignKey('Speech', related_name='similar')
+    target = models.ForeignKey('Speech', related_name='popular')
+    score = models.FloatField()
+
+    class Meta:
+        ordering = ['source__speaker__common_name', '-score']
+
+    def __str__(self):
+        return f'{self.score} {self.source.pk}<->{self.target.pk}'
+
+
+
 class Speech(models.Model):
     speaker = models.ForeignKey(President, related_name='speeches')
     title = models.CharField(max_length=1024, blank=True, null=True, unique=True)
@@ -90,6 +104,7 @@ class Speech(models.Model):
     date = models.DateField(blank=True, null=True)
     ARI_score = models.PositiveSmallIntegerField(default=0)
     ARI_display = models.CharField(max_length=100, default="Not Scored Yet.")
+    similar_speeches = models.ManyToManyField('self', through='SpeechSimilarity', symmetrical=False)
 
     class Meta:
         unique_together = ['speaker', 'title', 'date']
@@ -125,40 +140,28 @@ class Speech(models.Model):
         return word_scores
 
 
-    def similar_speeches(self, threshold=0.2, quantity=10):
-        """
-        tfidf = vect.fit_transform(["I'd like an apple",
-                                    "An apple a day keeps the doctor away",
-                                    "Never compare an apple to an orange",
-                                    "I prefer scikit-learn to Orange"])
-                                    
-        (tfidf * tfidf.T).A
-        
-        array([[ 1.        ,  0.25082859,  0.39482963,  0.        ],
-               [ 0.25082859,  1.        ,  0.22057609,  0.        ],
-               [ 0.39482963,  0.22057609,  1.        ,  0.26264139],
-               [ 0.        ,  0.        ,  0.26264139,  1.        ]])
-        
-        
-        """
-        vectorizer = TfidfVectorizer(min_df=1, stop_words='english')
+    def get_similar_speeches(self, quantity=10, set=False):
 
-        all_speeches = Speech.objects.all()
-        this_speech = self.body
+        all_speeches_corpus = iter(Speech.objects.values_list('pk', 'body'))
+        similar = similarity_vectorizer(self.body, all_speeches_corpus)                     # Generator
 
-        similar = list()
-        for other_speech in all_speeches:
-            tfidf = vectorizer.fit_transform([this_speech, other_speech.body])
-            pairwise_similarity = (tfidf * tfidf.T).A[1,0]
-            if pairwise_similarity > threshold:
-                similar.append((pairwise_similarity, other_speech))
+        result = sorted(similar, key=lambda t: t[1], reverse=True)[:quantity]               # Consume
 
-        result = sorted(similar, key=lambda t: t[0], reverse=True)[:quantity]
-        return result
+        if set:
+            for pk, score in result:
+                if pk == self.pk:
+                    continue
+
+                similarity, created = SpeechSimilarity.objects.update_or_create(source=self, target_id=int(pk),
+                                                                                defaults={'score':score})
+                similarity.save()
+        else:
+            return result
 
 
     def __str__(self):
         return '{} by {}'.format(self.title, self.speaker.common_name)
+
 
     def __len__(self):
         return len(self.body)
