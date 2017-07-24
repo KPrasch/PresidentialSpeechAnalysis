@@ -101,10 +101,11 @@ class Speech(models.Model):
             score, scoredata = ari_score(self.body)
             self.ARI_score = score
             self.ARI_display = scoredata['grade_level']
+            self.tag_tfidf()
 
         super().save(*args, **kwargs)
 
-    def tfidf(self, everybody=False):
+    def tag_tfidf(self, everybody=False, quantity=25):
         if everybody:
             all_speeches_corpus = Speech.objects.all().values_list('body', flat=True)
             corpus = all_speeches_corpus
@@ -115,9 +116,10 @@ class Speech(models.Model):
         speech = self.body
         word_scores = score_corpus(speech, corpus)
 
-        for word, score in word_scores:
-            tag, created = WordTag.objects.get_or_update(speech=self, word=word, score=score)
-            tag.save()
+        for word, score in word_scores[:quantity]:
+            tag, created = WordTag.objects.get_or_create(corpus=self, word=word, score=score, method='TFIDF')
+            if created:
+                tag.save()
         return word_scores
 
     def __str__(self):

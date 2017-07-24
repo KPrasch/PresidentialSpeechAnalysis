@@ -1,10 +1,15 @@
 from django.contrib import admin
 from .models import President, Speech, Person
+from language.admin import TFIDFInline
 
 
 class SpeechInline(admin.TabularInline):
     model = Speech
     extra = 0
+
+
+class SpeechAdmin(admin.ModelAdmin):
+    inlines = [TFIDFInline, ]
 
 
 class PresidentAdmin(admin.ModelAdmin):
@@ -17,5 +22,5 @@ class PresidentAdmin(admin.ModelAdmin):
 
 
 admin.site.register(President, PresidentAdmin)
-admin.site.register(Speech)
-admin.site.register(Person)
+admin.site.register(Speech, SpeechAdmin)
+# admin.site.register(Person)
