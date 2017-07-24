@@ -1,21 +1,31 @@
 {% extends 'pages/base.html' %}
 
 {% block main %}
+    <section id="flex-parent">
+        <div class="big-star text-center">
+            <div>
+                <span class="president-name us-101 white-text">{{ president.common_name }}</span>
+            </div>
+            <div class="">
+                <span class="president-term white-text declaration">
+                    {{ president.start_year|date:"Y" }} - {{ president.end_year|date:"Y" }}
+                </span>
+            </div>
+        </div>
+    </section>
 
-<section class="container">
+    <section class="container">
+
+        <div class="speech-list">
+          <table class='table table-striped'>
+              {% for speech in speeches %}
+                  <tr><td><a href="/speeches/{{ speech.id }}">{{ speech }}</a></td></tr>
+              {% endfor %}
+          </table>
+        </div>
 
 
-    <div class="well">
-      <h1>{{ object }}</h1>
+    </section>
 
-      <table class='table table-striped'>
-          {% for speech in speeches %}
-              <tr><td><a href="/speeches/{{ speech.id }}">{{ speech }}</a></td></tr>
-          {% endfor %}
-      </table>
-    </div>
-
-
-</section>
 
 {% endblock %}

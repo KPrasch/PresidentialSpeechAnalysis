@@ -1,0 +1,35 @@
+@font-face {
+  font-family: "Starz";
+  src: url("/static/pages/fonts/Starz.ttf");
+}
+
+.starz {
+    font-family: 'Starz', Fallback, sans-serif;
+}
+
+@font-face {
+  font-family: "US101";
+  src: url("/static/pages/fonts/US101.TTF");
+}
+
+.us-101 {
+    font-family: "US101", Fallback, sans-serif;
+}
+
+@font-face {
+  font-family: "declaration";
+  src: url("/static/pages/fonts/USDeclaration.ttf");
+}
+
+.declaration {
+    font-family: 'declaration', Fallback, sans-serif;
+}
+
+@font-face {
+  font-family: "united-states";
+  src: url("/static/pages/fonts/UnitedStates.ttf");
+}
+
+.united-states {
+    font-family: 'united-states', Fallback, sans-serif;
+}

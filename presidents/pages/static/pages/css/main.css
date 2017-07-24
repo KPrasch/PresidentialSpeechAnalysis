@@ -1,0 +1,72 @@
+
+h1 {
+    font-size: 2em;
+}
+
+h4 {
+    font-size: 0.75em;
+}
+
+.red-text {
+    color: red;
+}
+
+.blue-text {
+    color: blue;
+}
+
+.white-text {
+    color: white;
+}
+
+
+#president-banner {
+    font-size: 2em;
+}
+
+.banner {
+    padding-bottom: 150px;
+    padding-top: 150px;
+}
+
+#presidents-datatable {
+    padding-top: 50px;
+    /*font-family: 'Starz', Fallback, sans-serif;*/
+}
+
+footer {
+    background-color: black;
+    color: white;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.big-star {
+    background-image: url('/static/pages/img/big-star.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 600px;
+    height: 600px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    /*overflow: visible;*/
+}
+
+.president-name {
+    background-color: blue;
+    font-size: 5em;
+    /*padding: 1.5%;*/
+}
+
+.president-term {
+    font-size: 0.75em;
+    /*background-color: red;*/
+    /*padding: 3px;*/
+    font-weight: bold;
+}
+
+#flex-parent {
+    display: flex;
+    justify-content: center;
+}
