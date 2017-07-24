@@ -1,9 +1,12 @@
 Django==1.11.3
 nltk==3.2.1
+Markdown
+django-filter
+djangorestframework
 pandas
 pillow
 requests
-bs4
+beautifulsoup4
 numpy
 scipy
 scikit-learn

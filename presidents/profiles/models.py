@@ -125,7 +125,7 @@ class Speech(models.Model):
         return word_scores
 
 
-    def similar_speeches(self):
+    def similar_speeches(self, threshold=0.2, quantity=10):
         """
         tfidf = vect.fit_transform(["I'd like an apple",
                                     "An apple a day keeps the doctor away",
@@ -150,10 +150,10 @@ class Speech(models.Model):
         for other_speech in all_speeches:
             tfidf = vectorizer.fit_transform([this_speech, other_speech.body])
             pairwise_similarity = (tfidf * tfidf.T).A[1,0]
-            if pairwise_similarity > 0.20:
+            if pairwise_similarity > threshold:
                 similar.append((pairwise_similarity, other_speech))
 
-        result = sorted(similar, key=lambda t: t[0], reverse=True)[:10]
+        result = sorted(similar, key=lambda t: t[0], reverse=True)[:quantity]
         return result
 
 

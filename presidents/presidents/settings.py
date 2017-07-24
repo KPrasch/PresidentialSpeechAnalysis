@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'profiles.apps.ProfilesConfig',
     'pages.apps.PagesConfig',
     'language.apps.LanguageConfig',
+    'api.apps.ApiConfig',
+    'rest_framework',
     'tf_idf',
     'readability',
 ]
@@ -118,6 +120,18 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+
+# Django Rest Framework
+# http://www.django-rest-framework.org/#example
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 
 
 # Static files (CSS, JavaScript, Images)
