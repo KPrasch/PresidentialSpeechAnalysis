@@ -1,30 +1,26 @@
-{% extends 'pages/base.html' %}
+{#{% extends 'pages/base.html' %}#}
+{##}
+{#{% block main %}#}
 
-{% block main %}
-
-<section class='container'>
-
-
+<section id='presidents-datatable' class='container'>
 
   <table class="table">
-      <h1><span> {{ presidents|length }} </span>Presidencies</h1>
+
       <thead>
           <tr>
               <td> Presidency </td>
               <td> Dates </td>
               <td> Common Name </td>
-              <td> Speeches Availible </td>
+              <td> Speeches Available </td>
               <td> Reson for leaving Office </td>
               <td> ARI Score </td>
               <td> Birth Location</td>
-
-
           </tr>
       </thead>
 
       {% for president in presidents %}
         <tr>
-          <td> {{ president.presidecy_number }} </td>
+          <td> {{ president.presidency_number }} </td>
           <td> {{ president.start_year|date:"M d, Y" }} - {{ president.end_year|date:"M d, Y" }} </td>
           <td> <a href="/presidents/{{president.slug}}">{{ president.common_name }}<a> </td>
           <td> {{ president.speeches.all|length }} </td>
@@ -38,4 +34,4 @@
 
 </section>
 
-{% endblock %}
+{#{% endblock %}#}

@@ -1,10 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Presidential Speech Analysis</title>
-</head>
-<body>
+{% extends 'pages/base.html' %}
 
-</body>
-</html>
+{% block main %}
+
+    {#            Banner           #}
+    <section class="container-fluid">
+        <div id="president-banner" class="us-101 banner row text-center">
+            <h1> ★ <span class="red-text">{{ num_presidents }} </span> U.S. Presidents ★</h1>
+            <h4>
+                <span>------------------------------------</span>
+                <span class="declaration"><span class="blue-text">{{ num_speeches }}</span>
+                    Speeches</span>
+                <span>------------------------------------</span>
+            </h4>
+        </div>
+    </section>
+    <hr/>
+    {#end Banner#}
+
+    {% include 'pages/presidents_list.html' %}
+
+{% endblock %}
+
+
